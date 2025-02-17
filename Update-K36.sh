@@ -332,25 +332,12 @@ if [ ! -f "$UPDATE_DONE" ]; then
 	  exit 1
 	fi
 
-    if [ ! -z "$(grep "RGB30" /home/ark/.config/.DEVICE | tr -d '\0')" ]; then
-      sudo rm -rf roms/themes/es-theme-nes-box/cavestory/ -d / | tee -a "$LOG_FILE"
-	fi
-
 	printf "\nCopy correct Retroarches depending on device\n" | tee -a "$LOG_FILE"
-	if [ -f "/boot/rk3326-r33s-linux.dtb" ] || [ -f "/boot/rk3326-r35s-linux.dtb" ] || [ -f "/boot/rk3326-r36s-linux.dtb" ] || [ -f "/boot/rk3326-rg351v-linux.dtb" ] || [ -f "/boot/rk3326-rg351mp-linux.dtb" ] || [ -f "/boot/rk3326-gameforce-linux.dtb" ]; then
 	  cp -fv /opt/retroarch/bin/retroarch32.rk3326.unrot /opt/retroarch/bin/retroarch32 | tee -a "$LOG_FILE"
 	  cp -fv /opt/retroarch/bin/retroarch.rk3326.unrot /opt/retroarch/bin/retroarch | tee -a "$LOG_FILE"
 	  rm -fv /opt/retroarch/bin/retroarch.* | tee -a "$LOG_FILE"
 	  rm -fv /opt/retroarch/bin/retroarch32.* | tee -a "$LOG_FILE"
-	elif [ -f "/boot/rk3326-odroidgo2-linux.dtb" ] || [ -f "/boot/rk3326-odroidgo2-linux-v11.dtb" ] || [ -f "/boot/rk3326-odroidgo3-linux.dtb" ]; then
-	  cp -fv /opt/retroarch/bin/retroarch32.rk3326.rot /opt/retroarch/bin/retroarch32 | tee -a "$LOG_FILE"
-	  cp -fv /opt/retroarch/bin/retroarch.rk3326.rot /opt/retroarch/bin/retroarch | tee -a "$LOG_FILE"
-	  rm -fv /opt/retroarch/bin/retroarch.* | tee -a "$LOG_FILE"
-	  rm -fv /opt/retroarch/bin/retroarch32.* | tee -a "$LOG_FILE"
-	else
-	  rm -fv /opt/retroarch/bin/retroarch.* | tee -a "$LOG_FILE"
-	  rm -fv /opt/retroarch/bin/retroarch32.* | tee -a "$LOG_FILE"
-	fi
+
 	chmod 777 /opt/retroarch/bin/*
 
 	printf "\nCopy correct Hypseus-Singe for device\n" | tee -a "$LOG_FILE"
