@@ -1,6 +1,6 @@
 #!/bin/bash
 clear
-UPDATE_DATE="02022025"
+UPDATE_DATE="02082025"
 LOG_FILE="/home/ark/update$UPDATE_DATE.log"
 UPDATE_DONE="/home/ark/.config/.update$UPDATE_DATE"
 
@@ -389,7 +389,7 @@ if [ ! -f "/home/ark/.config/.update02012025-3" ]; then
 
 	touch "/home/ark/.config/.update02012025-3"
 fi
-if [ ! -f "$UPDATE_DONE" ]; then
+if [ ! -f "/home/ark/.config/.update02022025" ]; then
 
 	printf "\nFix save issue for Retroarch and Retroarch\nAdd .VERSION file for PortMaster\n" | tee -a "$LOG_FILE"
 	sudo rm -rf /dev/shm/*
@@ -498,7 +498,47 @@ fi
 	sudo sed -i "/title\=/c\title\=ArkOS 2.0 ($UPDATE_DATE)(AeUX)" /usr/share/plymouth/themes/text.plymouth
 	echo "$UPDATE_DATE" > /home/ark/.config/.VERSION
 
+	touch "/home/ark/.config/.update02022025"
+fi
+if [ ! -f "$UPDATE_DONE" ]; then
+
+	printf "\nUpdate retroarch to stable 1.20.0 to fix override issue from later commit\nUpdate emulationstation to fix font issues for languages like Korean\nAdd BBC Micro emulator\nUpdate msgbox\nUpdate USB Drive Mount script\nUpdate themes\n" | tee -a "$LOG_FILE"
+	sudo rm -rf /dev/shm/*
+	sudo wget -t 3 -T 60 --no-check-certificate "$LOCATION"/02082025/arkosupdate02082025.zip -O /dev/shm/arkosupdate02082025.zip -a "$LOG_FILE" || sudo rm -f /dev/shm/arkosupdate02082025.zip | tee -a "$LOG_FILE"
+	if [ -f "/dev/shm/arkosupdate02082025.zip" ]; then
+	  if [ ! -z "$([ -f /home/ark/.config/.DEVICE ] && grep RGB30 /home/ark/.config/.DEVICE | tr -d '\0')" ]; then
+		sudo unzip -X -o /dev/shm/arkosupdate02082025.zip -x roms/themes/es-theme-nes-box/* -d / | tee -a "$LOG_FILE"
+	  else
+		sudo unzip -X -o /dev/shm/arkosupdate02082025.zip -x roms/themes/es-theme-sagabox/* -d / | tee -a "$LOG_FILE"
+	  fi
+	
+	  sudo rm -fv /dev/shm/arkosupdate02082025.zip | tee -a "$LOG_FILE"
+	  sudo rm -fv /home/ark/add_bbcmicro.txt | tee -a "$LOG_FILE"
+	else
+	  printf "\nThe update couldn't complete because the package did not download correctly.\nPlease retry the update again." | tee -a "$LOG_FILE"
+	  sudo rm -fv /dev/shm/arkosupdate02082025.z* | tee -a "$LOG_FILE"
+	  sleep 3
+	  echo $c_brightness > /sys/class/backlight/backlight/brightness
+	  exit 1
+	fi
+
+	printf "\nCopy correct Retroarches depending on device\n" | tee -a "$LOG_FILE"
+	  cp -fv /opt/retroarch/bin/retroarch32.rk3326.unrot /opt/retroarch/bin/retroarch32 | tee -a "$LOG_FILE"
+	  cp -fv /opt/retroarch/bin/retroarch.rk3326.unrot /opt/retroarch/bin/retroarch | tee -a "$LOG_FILE"
+	  cp -Rfv /home/ark/filters/filters.64.rk3326/* /home/ark/.config/retroarch/filters/. | tee -a "$LOG_FILE"
+	  cp -Rfv /home/ark/filters/filters.32.rk3326/* /home/ark/.config/retroarch32/filters/. | tee -a "$LOG_FILE"
+	  rm -rfv /home/ark/filters/ | tee -a "$LOG_FILE"
+	  rm -fv /opt/retroarch/bin/retroarch.* | tee -a "$LOG_FILE"
+	  rm -fv /opt/retroarch/bin/retroarch32.* | tee -a "$LOG_FILE"
+
+	chmod 777 /opt/retroarch/bin/*
+
+	printf "\nUpdate boot text to reflect current version of ArkOS\n" | tee -a "$LOG_FILE"
+	sudo sed -i "/title\=/c\title\=ArkOS 2.0 ($UPDATE_DATE)(AeUX)" /usr/share/plymouth/themes/text.plymouth
+	echo "$UPDATE_DATE" > /home/ark/.config/.VERSION
+
 	touch "$UPDATE_DONE"
+
 
 	rm -v -- "$0" | tee -a "$LOG_FILE"
 	printf "\033c" >> /dev/tty1
