@@ -46,7 +46,7 @@ touch $LOG_FILE
 tail -f $LOG_FILE >> /dev/tty1 &
 
 
-if [ ! -f "$UPDATE_DONE" ]; then
+if [ ! -f "/home/ark/.config/.update09272024" ]; then
 
 	printf "\nChange netplay check frame setting to 10 for rk3326 devices\nUpdate singe.sh to include -texturestream setting\nUpdate daphne.sh to include -texturestream setting\nUpdate netplay.sh\nOptimize hostapd.conf\nAdd Restore ECWolf joystick control tool\nUpdate Backup and Restore ArkOS Settings tools\nUpdate ES to add scraping for vircon32\nUpdate XRoar emulator to version 1.6.5\nFix Kodi 21 crash playing large movies\n" | tee -a "$LOG_FILE"
 	sudo rm -rf /dev/shm/*
@@ -97,7 +97,43 @@ if [ ! -f "$UPDATE_DONE" ]; then
 	printf "\nUpdate boot text to reflect current version of ArkOS\n" | tee -a "$LOG_FILE"
 	sudo sed -i "/title\=/c\title\=ArkOS 2.0 ($UPDATE_DATE)(AeUX)" /usr/share/plymouth/themes/text.plymouth
 	
-	touch "$UPDATE_DONE"
+	touch "/home/ark/.config/.update09272024"
+
+fi
+
+if [ ! -f "$UPDATE_DONE" ]; then
+
+	printf "\nFix SDL 2.30.7 builtin joystick detection issue\n" | tee -a "$LOG_FILE"
+	sudo rm -rf /dev/shm/*
+	sudo wget -t 3 -T 60 --no-check-certificate "$LOCATION"/09292024/arkosupdate09292024.zip -O /dev/shm/arkosupdate09292024.zip -a "$LOG_FILE" || sudo rm -f /dev/shm/arkosupdate09292024.zip | tee -a "$LOG_FILE"
+	if [ -f "/dev/shm/arkosupdate09292024.zip" ]; then
+	  sudo unzip -X -o /dev/shm/arkosupdate09292024.zip -x home/ark/ogage-gameforce-chi -d / | tee -a "$LOG_FILE"
+	  sudo rm -fv /dev/shm/arkosupdate09292024.zip | tee -a "$LOG_FILE"
+	else
+	  printf "\nThe update couldn't complete because the package did not download correctly.\nPlease retry the update again." | tee -a "$LOG_FILE"
+	  sudo rm -fv /dev/shm/arkosupdate09292024.z* | tee -a "$LOG_FILE"
+	  sleep 3
+	  echo $c_brightness > /sys/class/backlight/backlight/brightness
+	  exit 1
+	fi
+
+	printf "\nInstall and link new SDL 2.0.3000.7 (aka SDL 2.0.30.7)\n" | tee -a "$LOG_FILE"
+
+	  sudo mv -f -v /home/ark/sdl2-64/libSDL2-2.0.so.0.3000.7.rk3326 /usr/lib/aarch64-linux-gnu/libSDL2-2.0.so.0.3000.7 | tee -a "$LOG_FILE"
+	  sudo mv -f -v /home/ark/sdl2-32/libSDL2-2.0.so.0.3000.7.rk3326 /usr/lib/arm-linux-gnueabihf/libSDL2-2.0.so.0.3000.7 | tee -a "$LOG_FILE"
+	  sudo rm -rfv /home/ark/sdl2-32 | tee -a "$LOG_FILE"
+	  sudo rm -rfv /home/ark/sdl2-64 | tee -a "$LOG_FILE"
+	  sudo ln -sfv /usr/lib/aarch64-linux-gnu/libSDL2.so /usr/lib/aarch64-linux-gnu/libSDL2-2.0.so.0 | tee -a "$LOG_FILE"
+	  sudo ln -sfv /usr/lib/aarch64-linux-gnu/libSDL2-2.0.so.0.3000.7 /usr/lib/aarch64-linux-gnu/libSDL2.so | tee -a "$LOG_FILE"
+	  sudo ln -sfv /usr/lib/arm-linux-gnueabihf/libSDL2.so /usr/lib/arm-linux-gnueabihf/libSDL2-2.0.so.0 | tee -a "$LOG_FILE"
+	  sudo ln -sfv /usr/lib/arm-linux-gnueabihf/libSDL2-2.0.so.0.3000.7 /usr/lib/arm-linux-gnueabihf/libSDL2.so | tee -a "$LOG_FILE"
+	  sudo chmod -R 755 /opt/system/Advanced/ | tee -a "$LOG_FILE"
+	  sudo chmod -R 755 /opt/system/DeviceType/ | tee -a "$LOG_FILE"
+	  sudo chown -Rv  ark:ark /opt/system/DeviceType/ | tee -a "$LOG_FILE"
+		
+	printf "\nUpdate boot text to reflect current version of ArkOS\n" | tee -a "$LOG_FILE"
+	sudo sed -i "/title\=/c\title\=ArkOS 2.0 ($UPDATE_DATE)(AeUX)" /usr/share/plymouth/themes/text.plymouth
+	touch "$UPDATE_DONE"	
 	
 	rm -v -- "$0" | tee -a "$LOG_FILE"
 	printf "\033c" >> /dev/tty1
