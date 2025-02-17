@@ -1,6 +1,6 @@
 #!/bin/bash
 clear
-UPDATE_DATE="12242024"
+UPDATE_DATE="01312025"
 LOG_FILE="/home/ark/update$UPDATE_DATE.log"
 UPDATE_DONE="/home/ark/.config/.update$UPDATE_DATE"
 
@@ -228,7 +228,7 @@ if [ ! -f "/home/ark/.config/.update11272024" ]; then
 	touch "/home/ark/.config/.update11272024"
 fi
 
-	if [ ! -f "$UPDATE_DONE" ]; then
+if [ ! -f "/home/ark/.config/.update12242024" ]; then
 
 	printf "\nUpdate ScummVM to 2.9.0\nUpdate SDL to 2.30.10\nUpdate Change Ports SDL tool\nUpdate Filebrowser to 2.31.2\nUpdate enable_vibration script\nUpdate daphne.sh and single.sh scripts for RGB30 Unit\nAdd j2me to nes-box and sagabox themes\nUpdate coco.sh to accomodate alternate default controls\n" | tee -a "$LOG_FILE"
 	sudo rm -rf /dev/shm/*
@@ -301,8 +301,70 @@ fi
 	printf "\nUpdate boot text to reflect current version of ArkOS\n" | tee -a "$LOG_FILE"
 	sudo sed -i "/title\=/c\title\=ArkOS 2.0 ($UPDATE_DATE)(AeUX)" /usr/share/plymouth/themes/text.plymouth
 
-	touch "$UPDATE_DONE"
+	touch "/home/ark/.config/.update12242024"
+fi
+if [ ! -f "$UPDATE_DONE" ]; then
 
+	printf "\nUpdate Retroarch and Retroarch32 to 1.20.0\nUpdate rk3566 kernel with battery reading fix and native rumble support\nUpdate Hypseus-singe to 2.11.4\nUpdate pico8.sh to fix offline carts play via splore\nFix bad freej2me-lr.jar and freej2me-plus-lr.jar files\nAdd vibration support for RK2023\nUpdate Emulationstation\nUpdate batt_life_verbal_warning.py\n" | tee -a "$LOG_FILE"
+	sudo rm -rf /dev/shm/*
+	sudo wget -t 3 -T 60 --no-check-certificate "$LOCATION"/01312025/arkosupdate01312025.zip -O /dev/shm/arkosupdate01312025.zip -a "$LOG_FILE" || sudo rm -f /dev/shm/arkosupdate01312025.zip | tee -a "$LOG_FILE"
+	if [ -f "/dev/shm/arkosupdate01312025.zip" ]; then
+		if [ -f "/boot/rk3566.dtb" ] || [ -f "/boot/rk3566-OC.dtb" ]; then
+		  if [ ! -z "$(grep "RGB30" /home/ark/.config/.DEVICE | tr -d '\0')" ] || [ ! -z "$(grep "RK2023" /home/ark/.config/.DEVICE | tr -d '\0')" ]; then
+			if [ ! -z "$(grep "RGB30" /home/ark/.config/.DEVICE | tr -d '\0')" ]; then
+		      sudo unzip -X -o /dev/shm/arkosupdate01312025.zip -x roms/themes/es-theme-nes-box/* -d / | tee -a "$LOG_FILE"
+			else
+		      sudo unzip -X -o /dev/shm/arkosupdate01312025.zip -x roms/themes/es-theme-sagabox/* -d / | tee -a "$LOG_FILE"
+			fi
+		  else
+		    sudo unzip -X -o /dev/shm/arkosupdate01312025.zip -x usr/local/bin/enable_vibration.sh roms/themes/es-theme-sagabox/* -d / | tee -a "$LOG_FILE"
+		  fi
+		else
+		  sudo unzip -X -o /dev/shm/arkosupdate01312025.zip -x usr/local/bin/enable_vibration.sh roms/themes/es-theme-sagabox/* home/ark/.kodi/addons/script.module.urllib3/* home/ark/rk3566-kernel/* -d / | tee -a "$LOG_FILE"
+		fi
+	    sudo rm -fv /home/ark/add_cavestory.txt | tee -a "$LOG_FILE"
+	    sudo rm -fv /dev/shm/arkosupdate01312025.zip | tee -a "$LOG_FILE"
+	else
+	  printf "\nThe update couldn't complete because the package did not download correctly.\nPlease retry the update again." | tee -a "$LOG_FILE"
+	  sudo rm -fv /dev/shm/arkosupdate01312025.z* | tee -a "$LOG_FILE"
+	  sleep 3
+	  echo $c_brightness > /sys/class/backlight/backlight/brightness
+	  exit 1
+	fi
+
+    if [ ! -z "$(grep "RGB30" /home/ark/.config/.DEVICE | tr -d '\0')" ]; then
+      sudo rm -rf roms/themes/es-theme-nes-box/cavestory/ -d / | tee -a "$LOG_FILE"
+	fi
+
+	printf "\nCopy correct Retroarches depending on device\n" | tee -a "$LOG_FILE"
+	if [ -f "/boot/rk3326-r33s-linux.dtb" ] || [ -f "/boot/rk3326-r35s-linux.dtb" ] || [ -f "/boot/rk3326-r36s-linux.dtb" ] || [ -f "/boot/rk3326-rg351v-linux.dtb" ] || [ -f "/boot/rk3326-rg351mp-linux.dtb" ] || [ -f "/boot/rk3326-gameforce-linux.dtb" ]; then
+	  cp -fv /opt/retroarch/bin/retroarch32.rk3326.unrot /opt/retroarch/bin/retroarch32 | tee -a "$LOG_FILE"
+	  cp -fv /opt/retroarch/bin/retroarch.rk3326.unrot /opt/retroarch/bin/retroarch | tee -a "$LOG_FILE"
+	  rm -fv /opt/retroarch/bin/retroarch.* | tee -a "$LOG_FILE"
+	  rm -fv /opt/retroarch/bin/retroarch32.* | tee -a "$LOG_FILE"
+	elif [ -f "/boot/rk3326-odroidgo2-linux.dtb" ] || [ -f "/boot/rk3326-odroidgo2-linux-v11.dtb" ] || [ -f "/boot/rk3326-odroidgo3-linux.dtb" ]; then
+	  cp -fv /opt/retroarch/bin/retroarch32.rk3326.rot /opt/retroarch/bin/retroarch32 | tee -a "$LOG_FILE"
+	  cp -fv /opt/retroarch/bin/retroarch.rk3326.rot /opt/retroarch/bin/retroarch | tee -a "$LOG_FILE"
+	  rm -fv /opt/retroarch/bin/retroarch.* | tee -a "$LOG_FILE"
+	  rm -fv /opt/retroarch/bin/retroarch32.* | tee -a "$LOG_FILE"
+	else
+	  rm -fv /opt/retroarch/bin/retroarch.* | tee -a "$LOG_FILE"
+	  rm -fv /opt/retroarch/bin/retroarch32.* | tee -a "$LOG_FILE"
+	fi
+	chmod 777 /opt/retroarch/bin/*
+
+	printf "\nCopy correct Hypseus-Singe for device\n" | tee -a "$LOG_FILE"
+	if [ -f "/boot/rk3566.dtb" ] || [ -f "/boot/rk3566-OC.dtb" ]; then
+      rm -fv /opt/hypseus-singe/hypseus-singe.rk3326 | tee -a "$LOG_FILE"
+    else
+      mv -fv /opt/hypseus-singe/hypseus-singe.rk3326 /opt/hypseus-singe/hypseus-singe | tee -a "$LOG_FILE"
+	fi
+
+	printf "\nUpdate boot text to reflect current version of ArkOS\n" | tee -a "$LOG_FILE"
+	sudo sed -i "/title\=/c\title\=ArkOS 2.0 ($UPDATE_DATE)(AeUX)" /usr/share/plymouth/themes/text.plymouth
+
+	touch "$UPDATE_DONE"
+	
 	rm -v -- "$0" | tee -a "$LOG_FILE"
 	printf "\033c" >> /dev/tty1
 	msgbox "Updates have been completed.  System will now restart after you hit the A button to continue.  If the system doesn't restart after pressing A, just restart the system manually."
