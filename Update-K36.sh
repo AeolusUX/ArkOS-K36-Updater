@@ -578,6 +578,16 @@ if [ ! -f "$UPDATE_DONE" ]; then
 	sudo rm -f /etc/emulationstation/es_systems.cfg | tee -a "$LOG_FILE"
 	sudo cp -fv /usr/local/bin/es_systems.cfg.dual /etc/emulationstation/es_systems.cfg.dual | tee -a "$LOG_FILE"
 	sudo cp -fv /usr/local/bin/es_systems.cfg.single /etc/emulationstation/es_systems.cfg | tee -a "$LOG_FILE"
+	
+	#CLEAN UP
+	sudo rm -rf /opt/system/DeviceType/ 2>&1 | tee -a "$LOG_FILE"
+	sudo rm -rf /home/ark/mono 2>&1 | tee -a "$LOG_FILE"
+	sudo rm -rf /home/ark/ra 2>&1 | tee -a "$LOG_FILE"
+	sudo rm -rf /home/ark/ra32 2>&1 | tee -a "$LOG_FILE"
+	sudo rm -rf /home/ark/sd_fuse 2>&1 | tee -a "$LOG_FILE"
+	sudo rm -f /home/ark/exfat* | tee -a "$LOG_FILE"
+	sudo rm -f /home/ark/ogage.351mp | tee -a "$LOG_FILE"
+	
 
 	printf "\nUpdate boot text to reflect current version of ArkOS\n" | tee -a "$LOG_FILE"
 	sudo sed -i "/title\=/c\title\=ArkOS 2.0 ($UPDATE_DATE)(AeUX)" /usr/share/plymouth/themes/text.plymouth
