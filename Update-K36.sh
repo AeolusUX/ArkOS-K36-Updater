@@ -104,7 +104,7 @@ if [ ! -f "/home/ark/.config/.update09272024" ]; then
 
 fi
 
-if [ ! -f "$UPDATE_DONE" ]; then
+if [ ! -f "/home/ark/.config/.update09292024" ]; then
 
 	printf "\nFix SDL 2.30.7 builtin joystick detection issue\n" | tee -a "$LOG_FILE"
 	sudo rm -rf /dev/shm/*
@@ -136,9 +136,11 @@ if [ ! -f "$UPDATE_DONE" ]; then
 		
 	printf "\nUpdate boot text to reflect current version of ArkOS\n" | tee -a "$LOG_FILE"
 	sudo sed -i "/title\=/c\title\=ArkOS 2.0 ($UPDATE_DATE)(AeUX)" /usr/share/plymouth/themes/text.plymouth
-	touch "$UPDATE_DONE"	
+	touch "/home/ark/.config/.update09292024"
+
+fi
 	
-	if [ ! -f "/home/ark/.config/.update10252024" ]; then
+if [ ! -f "$UPDATE_DONE" ]; then
 
 	printf "\nUpdate emulationstation to exclude menu.scummvm from scraping\nUpdate DS4 Controller config for retroarches\nUpdate Hypseus-Singe to 2.11.3\n" | tee -a "$LOG_FILE"
 	sudo rm -rf /dev/shm/*
