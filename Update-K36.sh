@@ -303,7 +303,7 @@ if [ ! -f "/home/ark/.config/.update12242024" ]; then
 
 	touch "/home/ark/.config/.update12242024"
 fi
-if [ ! -f "$UPDATE_DONE" ]; then
+if [ ! -f "/home/ark/.config/.update01312025" ]; then
 
 	printf "\nUpdate Retroarch and Retroarch32 to 1.20.0\nUpdate rk3566 kernel with battery reading fix and native rumble support\nUpdate Hypseus-singe to 2.11.4\nUpdate pico8.sh to fix offline carts play via splore\nFix bad freej2me-lr.jar and freej2me-plus-lr.jar files\nAdd vibration support for RK2023\nUpdate Emulationstation\nUpdate batt_life_verbal_warning.py\n" | tee -a "$LOG_FILE"
 	sudo rm -rf /dev/shm/*
@@ -349,6 +349,43 @@ if [ ! -f "$UPDATE_DONE" ]; then
 
 	printf "\nUpdate boot text to reflect current version of ArkOS\n" | tee -a "$LOG_FILE"
 	sudo sed -i "/title\=/c\title\=ArkOS 2.0 ($UPDATE_DATE)(AeUX)" /usr/share/plymouth/themes/text.plymouth
+
+	touch "/home/ark/.config/.update01312025"
+fi	
+if [ ! -f "/home/ark/.config/.update02012025-2" ]; then
+
+	printf "\nFix potential battery reading issue from 01312025 update for rk3566 devices\n" | tee -a "$LOG_FILE"
+	sudo rm -rf /dev/shm/*
+	sudo wget -t 3 -T 60 --no-check-certificate "$LOCATION"/02012025-2/arkosupdate02012025-2.zip -O /dev/shm/arkosupdate02012025-2.zip -a "$LOG_FILE" || sudo rm -f /dev/shm/arkosupdate02012025-2.zip | tee -a "$LOG_FILE"
+if [ -f "/dev/shm/arkosupdate02012025-2.zip" ]; then
+	  sudo unzip -X -o /dev/shm/arkosupdate02012025-2.zip -d / | tee -a "$LOG_FILE"
+	  sudo rm -fv /dev/shm/arkosupdate02012025-2.zip | tee -a "$LOG_FILE"
+	else
+	  printf "\nThe update couldn't complete because the package did not download correctly.\nPlease retry the update again." | tee -a "$LOG_FILE"
+	  sudo rm -fv /dev/shm/arkosupdate02012025-2.z* | tee -a "$LOG_FILE"
+	  sleep 3
+	  echo $c_brightness > /sys/class/backlight/backlight/brightness
+	  exit 1
+fi
+
+	sudo rm -fv /home/ark/add_onsyuri_onscripter.txt | tee -a "$LOG_FILE"
+
+
+	printf "\nUpdate boot text to reflect current version of ArkOS\n" | tee -a "$LOG_FILE"
+	sudo sed -i "/title\=/c\title\=ArkOS 2.0 ($UPDATE_DATE)(AeUX)" /usr/share/plymouth/themes/text.plymouth
+
+	touch "/home/ark/.config/.update02012025-2"
+fi
+	
+	
+if [ ! -f "$UPDATE_DONE" ]; then
+
+	printf "\nFix PortMaster\nAdd KEY_SERVICE to RIGHTSTICK button for Hypseus-Singe\n" | tee -a "$LOG_FILE"
+
+	sed -i '/KEY_SERVICE    \= SDLK_9          0         0                  0                 0/c\KEY_SERVICE    \= SDLK_9          0         BUTTON_RIGHTSTICK  0                 0' /opt/hypseus-singe/hypinput.ini
+
+	printf "\nUpdate boot text to reflect current version of ArkOS\n" | tee -a "$LOG_FILE"
+	sudo sed -i "/title\=/c\title\=ArkOS 2.0 (02012025)-3(AeUX)" /usr/share/plymouth/themes/text.plymouth
 
 	touch "$UPDATE_DONE"
 	
